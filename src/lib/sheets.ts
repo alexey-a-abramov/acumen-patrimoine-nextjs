@@ -74,7 +74,7 @@ class GoogleSheetsService {
         throw new Error('GOOGLE_SHEETS_ID environment variable is not set');
       }
 
-      const range = 'FormSends!A:H'; // Assuming columns A-H for the data
+      const range = 'Sheet1!A:H'; // Assuming columns A-H for the data
       const values = [
         [
           data.timestamp,
@@ -154,7 +154,7 @@ class GoogleSheetsService {
       // Check if the first row contains headers
       const response = await this.sheets.spreadsheets.values.get({
         spreadsheetId,
-        range: 'FormSends!A1:H1',
+        range: 'Sheet1!A1:H1',
       });
 
       if (!response.data.values || response.data.values.length === 0) {
@@ -172,7 +172,7 @@ class GoogleSheetsService {
 
         await this.sheets.spreadsheets.values.update({
           spreadsheetId,
-          range: 'FormSends!A1:H1',
+          range: 'Sheet1!A1:H1',
           valueInputOption: 'RAW',
           requestBody: {
             values: [headers]
@@ -214,6 +214,44 @@ class GoogleSheetsService {
     } catch (error) {
       console.error('Error ensuring header row:', error);
       // Don't throw here as this is not critical for the main functionality
+    }
+  }
+
+  async testConnection(): Promise<void> {
+    if (!this.sheets) {
+      throw new Error('Google Sheets service not initialized - check credentials configuration');
+    }
+
+    const spreadsheetId = process.env.GOOGLE_SHEETS_ID;
+    if (!spreadsheetId) {
+      throw new Error('GOOGLE_SHEETS_ID environment variable is not set');
+    }
+
+    try {
+      // Simple test: try to read the spreadsheet metadata
+      const response = await this.sheets.spreadsheets.get({
+        spreadsheetId,
+        fields: 'properties.title,sheets.properties.title'
+      });
+
+      if (!response.data) {
+        throw new Error('Unable to access spreadsheet - no data returned');
+      }
+
+      console.log(`Health check: Successfully connected to spreadsheet "${response.data.properties?.title}"`);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      
+      // Provide more specific error messages
+      if (errorMessage.includes('not found')) {
+        throw new Error(`Spreadsheet not found - check GOOGLE_SHEETS_ID: ${spreadsheetId}`);
+      } else if (errorMessage.includes('permission')) {
+        throw new Error('Permission denied - check service account has access to the spreadsheet');
+      } else if (errorMessage.includes('credentials')) {
+        throw new Error('Authentication failed - check GOOGLE_SHEETS_CREDENTIALS configuration');
+      } else {
+        throw new Error(`Google Sheets API error: ${errorMessage}`);
+      }
     }
   }
 }

@@ -12,6 +12,7 @@ env:
   PROJECT_ID: sextant-prestige-poc
   SERVICE_NAME: acumen-patrimoine
   REGION: europe-west1
+  AR_REPO: europe-west1-docker.pkg.dev/sextant-prestige-poc/sextant-prestige-repo
 
 jobs:
   # Build and test job
@@ -49,33 +50,33 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Setup Google Cloud CLI
-      uses: google-github-actions/setup-gcloud@v2
-      with:
-        project_id: ${{ env.PROJECT_ID }}
-
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v2
       with:
         credentials_json: ${{ secrets.GCP_SA_KEY }}
 
-    - name: Configure Docker to use gcloud as a credential helper
-      run: gcloud auth configure-docker
+    - name: Setup Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        project_id: ${{ env.PROJECT_ID }}
+
+    - name: Configure Docker for Artifact Registry
+      run: gcloud auth configure-docker europe-west1-docker.pkg.dev
 
     - name: Build Docker image
       run: |
-        docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} .
-        docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:latest .
+        docker build -t ${{ env.AR_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }} .
+        docker tag ${{ env.AR_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }} ${{ env.AR_REPO }}/${{ env.SERVICE_NAME }}:latest
 
-    - name: Push Docker image to GCR
+    - name: Push Docker image to Artifact Registry
       run: |
-        docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
-        docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:latest
+        docker push ${{ env.AR_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+        docker push ${{ env.AR_REPO }}/${{ env.SERVICE_NAME }}:latest
 
     - name: Deploy to Cloud Run
       run: |
         gcloud run deploy ${{ env.SERVICE_NAME }} \
-          --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} \
+          --image ${{ env.AR_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }} \
           --region ${{ env.REGION }} \
           --platform managed \
           --allow-unauthenticated \
@@ -98,14 +99,6 @@ jobs:
       with:
         script: |
           const serviceUrl = process.env.SERVICE_URL;
-          const comment = `🚀 **Deployment Successful!**\n\n` +
-            `📅 **Commit:** ${context.sha.substring(0, 7)}\n` +
-            `🌐 **URL:** [${serviceUrl}](${serviceUrl})\n` +
-            `⚡ **Environment:** Production\n` +
-            `📦 **Service:** ${process.env.SERVICE_NAME}\n` +
-            `🏷️ **Region:** ${process.env.REGION}`;
-          
-          // Create a commit status
           github.rest.repos.createCommitStatus({
             owner: context.repo.owner,
             repo: context.repo.repo,
