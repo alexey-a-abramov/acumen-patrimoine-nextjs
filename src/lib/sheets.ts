@@ -74,7 +74,7 @@ class GoogleSheetsService {
         throw new Error('GOOGLE_SHEETS_ID environment variable is not set');
       }
 
-      const range = 'Sheet1!A:H'; // Assuming columns A-H for the data
+      const range = 'FormSends!A:H'; // Assuming columns A-H for the data
       const values = [
         [
           data.timestamp,
@@ -121,7 +121,7 @@ class GoogleSheetsService {
       // Check if the first row contains headers
       const response = await this.sheets.spreadsheets.values.get({
         spreadsheetId,
-        range: 'Sheet1!A1:H1',
+        range: 'FormSends!A1:H1',
       });
 
       if (!response.data.values || response.data.values.length === 0) {
@@ -139,7 +139,7 @@ class GoogleSheetsService {
 
         await this.sheets.spreadsheets.values.update({
           spreadsheetId,
-          range: 'Sheet1!A1:H1',
+          range: 'FormSends!A1:H1',
           valueInputOption: 'RAW',
           requestBody: {
             values: [headers]
