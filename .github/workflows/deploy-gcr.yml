@@ -12,7 +12,7 @@ env:
   PROJECT_ID: sextant-prestige-poc
   SERVICE_NAME: acumen-patrimoine
   REGION: europe-west1
-  AR_REPO: europe-west1-docker.pkg.dev/sextant-prestige-poc/sextant-prestige-repo
+  AR_REPO: europe-west1-docker.pkg.dev/sextant-prestige-poc/gcf-artifacts
 
 jobs:
   # Build and test job
