@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useGoogleReCaptcha } from 'react-google-recaptcha-v3';
 
 interface ContactMessage {
   type: string;
@@ -14,6 +15,7 @@ interface ContactSectionProps {
 
 const ContactSection: React.FC<ContactSectionProps> = ({ contactMessage, setContactMessage }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const [formData, setFormData] = useState({
     contactCivility: '',
     contactName: '',
@@ -37,10 +39,25 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contactMessage, setCont
     setContactMessage({ type: '', text: '' });
 
     try {
+      let recaptchaToken = null;
+      
+      // Execute reCAPTCHA if available
+      if (executeRecaptcha) {
+        try {
+          recaptchaToken = await executeRecaptcha('contact_form');
+        } catch (recaptchaError) {
+          console.warn('reCAPTCHA execution failed:', recaptchaError);
+          // Continue without reCAPTCHA token - server will handle this gracefully
+        }
+      }
+
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          ...formData,
+          recaptchaToken
+        })
       });
 
       const data = await response.json();
@@ -185,7 +202,14 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contactMessage, setCont
               </button>
               
               <p className="text-sm text-gray-600 mt-4 text-center">
-                * Champs obligatoires - Réponse sous 24h ouvrées
+                * Champs obligatoires - Réponse sous 24h ouvrées<br/>
+                Ce site est protégé par reCAPTCHA et les{' '}
+                <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer" className="text-blue-900 hover:underline">
+                  Règles de confidentialité
+                </a>{' '}et{' '}
+                <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" className="text-blue-900 hover:underline">
+                  Conditions d'utilisation
+                </a>{' '}de Google s'appliquent.
               </p>
             </form>
           </div>

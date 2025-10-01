@@ -11,13 +11,60 @@ export async function POST(request: Request) {
       contactEmail,
       contactPhone,
       contactProfile,
-      contactMessage
+      contactMessage,
+      recaptchaToken
     } = formData;
 
     // Get client IP address
     const forwarded = request.headers.get('x-forwarded-for');
     const ip = forwarded ? forwarded.split(',')[0] : request.headers.get('x-real-ip') || 'unknown';
     
+    // Verify reCAPTCHA token if provided
+    if (recaptchaToken && process.env.RECAPTCHA_SECRET_KEY) {
+      try {
+        const recaptchaResponse = await fetch('https://www.google.com/recaptcha/api/siteverify', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            secret: process.env.RECAPTCHA_SECRET_KEY,
+            response: recaptchaToken,
+            remoteip: ip
+          }),
+        });
+
+        const recaptchaResult = await recaptchaResponse.json();
+        
+        if (!recaptchaResult.success) {
+          console.warn('reCAPTCHA verification failed:', recaptchaResult);
+          return NextResponse.json({ 
+            success: false, 
+            message: 'Verification de sécurité échouée. Veuillez réessayer.' 
+          }, { status: 400 });
+        }
+        
+        // Check score (for v3) - should be > 0.5 for legitimate requests
+        if (recaptchaResult.score && recaptchaResult.score < 0.5) {
+          console.warn('reCAPTCHA score too low:', recaptchaResult.score);
+          return NextResponse.json({ 
+            success: false, 
+            message: 'Verification de sécurité échouée. Veuillez réessayer.' 
+          }, { status: 400 });
+        }
+        
+        console.log('reCAPTCHA verification successful, score:', recaptchaResult.score);
+      } catch (recaptchaError) {
+        console.error('reCAPTCHA verification error:', recaptchaError);
+        // Continue without blocking if reCAPTCHA service is down
+        console.warn('Continuing without reCAPTCHA verification due to service error');
+      }
+    } else if (!recaptchaToken && process.env.RECAPTCHA_SECRET_KEY) {
+      console.warn('reCAPTCHA token missing but required');
+      // In production, you might want to return an error here
+      // For now, we'll continue to maintain compatibility
+    }
+
     // Create timestamp in French format
     const timestamp = new Date().toLocaleString('fr-FR', {
       timeZone: 'Europe/Paris',

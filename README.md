@@ -122,6 +122,33 @@ The application automatically saves all contact form submissions to a Google She
    - `GOOGLE_SHEETS_ID`: Extract from your Google Sheets URL
    - `GOOGLE_SHEETS_CREDENTIALS`: Content of the service account JSON key file
 
+## 🔒 reCAPTCHA Protection
+
+The contact form is protected by Google reCAPTCHA v3 (invisible) to prevent spam and abuse.
+
+### Features:
+- **Invisible Protection**: No user interaction required
+- **Real-time Scoring**: Analyzes user behavior to detect bots
+- **Graceful Degradation**: Form works even if reCAPTCHA fails
+- **Privacy Compliant**: Includes Google privacy policy links
+
+### Setting up reCAPTCHA:
+
+1. **Create reCAPTCHA site:**
+   - Go to [Google reCAPTCHA Admin Console](https://www.google.com/recaptcha/admin/create)
+   - Choose "reCAPTCHA v3"
+   - Add your domain(s) (e.g., `yourdomain.com`, `localhost` for development)
+
+2. **Configure environment variables:**
+   ```env
+   NEXT_PUBLIC_RECAPTCHA_SITE_KEY=your_site_key_here
+   RECAPTCHA_SECRET_KEY=your_secret_key_here
+   ```
+
+3. **Score threshold:** Default minimum score is 0.5 (adjustable in the API route)
+
+4. **Testing:** Use score 0.9 for legitimate users, 0.1 for suspicious activity
+
 ## 🚢 Deployment
 
 ### GitHub Actions (Recommended)
