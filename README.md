@@ -310,3 +310,4 @@ For issues and questions related to this migration, please check:
 
 This project is proprietary software developed for Sextant Properties / Acumen Patrimoine.
 # Permissions updated for Artifact Registry
+# Repository-level permissions added
