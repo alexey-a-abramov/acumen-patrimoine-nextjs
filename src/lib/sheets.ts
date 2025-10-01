@@ -99,6 +99,39 @@ class GoogleSheetsService {
         },
       });
 
+      // Clear formatting on the newly added row to ensure white background
+      if (result.data.updates?.updatedRange) {
+        const updatedRange = result.data.updates.updatedRange;
+        await this.sheets.spreadsheets.batchUpdate({
+          spreadsheetId,
+          requestBody: {
+            requests: [
+              {
+                repeatCell: {
+                  range: {
+                    sheetId: 0,
+                    startRowIndex: parseInt(updatedRange.split('!')[1].split(':')[0].replace(/[A-Z]/g, '')) - 1,
+                    endRowIndex: parseInt(updatedRange.split('!')[1].split(':')[0].replace(/[A-Z]/g, '')),
+                    startColumnIndex: 0,
+                    endColumnIndex: 8
+                  },
+                  cell: {
+                    userEnteredFormat: {
+                      backgroundColor: { red: 1.0, green: 1.0, blue: 1.0 },
+                      textFormat: { 
+                        foregroundColor: { red: 0.0, green: 0.0, blue: 0.0 },
+                        bold: false 
+                      }
+                    }
+                  },
+                  fields: 'userEnteredFormat(backgroundColor,textFormat)'
+                }
+              }
+            ]
+          }
+        });
+      }
+
       console.log('Successfully added contact form data to Google Sheets:', result.data);
     } catch (error) {
       console.error('Error adding data to Google Sheets:', error);
