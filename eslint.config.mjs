@@ -20,6 +20,11 @@ const eslintConfig = [
       "next-env.d.ts",
     ],
   },
+  {
+    rules: {
+      "react/no-unescaped-entities": "off", // Disable for French content with apostrophes
+    },
+  },
 ];
 
 export default eslintConfig;

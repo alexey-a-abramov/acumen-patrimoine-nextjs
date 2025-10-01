@@ -75,7 +75,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contactMessage, setCont
       } else {
         setContactMessage({ type: 'error', text: data.message });
       }
-    } catch (error) {
+    } catch {
       setContactMessage({ type: 'error', text: 'Erreur réseau. Veuillez réessayer.' });
     } finally {
       setIsLoading(false);
@@ -208,8 +208,8 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contactMessage, setCont
                   Règles de confidentialité
                 </a>{' '}et{' '}
                 <a href="https://policies.google.com/terms" target="_blank" rel="noopener noreferrer" className="text-blue-900 hover:underline">
-                  Conditions d'utilisation
-                </a>{' '}de Google s'appliquent.
+                  Conditions d&apos;utilisation
+                </a>{' '}de Google s&apos;appliquent.
               </p>
             </form>
           </div>
