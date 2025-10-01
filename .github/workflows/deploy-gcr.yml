@@ -83,7 +83,7 @@ jobs:
           --memory 1Gi \
           --cpu 1 \
           --max-instances 10 \
-          --set-env-vars NODE_ENV=production,GOOGLE_SHEETS_ID=${{ secrets.GOOGLE_SHEETS_ID }},GOOGLE_SHEETS_CREDENTIALS='${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}'
+          --set-env-vars NODE_ENV=production,GOOGLE_SHEETS_ID=${{ secrets.GOOGLE_SHEETS_ID }},GOOGLE_SHEETS_CREDENTIALS='${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}',NEXT_PUBLIC_RECAPTCHA_SITE_KEY=${{ secrets.RECAPTCHA_SITE_KEY }},RECAPTCHA_SECRET_KEY=${{ secrets.RECAPTCHA_SECRET_KEY }}
 
     - name: Get service URL
       run: |

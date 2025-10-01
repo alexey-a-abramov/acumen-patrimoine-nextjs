@@ -42,7 +42,7 @@ const PartnersSection: React.FC<PartnersSectionProps> = ({ loginMessage, setLogi
         setLoginMessage({ type: 'error', text: data.message });
       }
     } catch {
-      setMessage({ type: 'error', text: 'Erreur de connexion. Veuillez réessayer.' });
+      setLoginMessage({ type: 'error', text: 'Erreur de connexion. Veuillez réessayer.' });
     } finally {
       setIsLoading(false);
     }
