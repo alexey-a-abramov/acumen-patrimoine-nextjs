@@ -83,7 +83,7 @@ jobs:
           --memory 1Gi \
           --cpu 1 \
           --max-instances 10 \
-          --set-env-vars NODE_ENV=production
+          --set-env-vars NODE_ENV=production,GOOGLE_SHEETS_ID=${{ secrets.GOOGLE_SHEETS_ID }},GOOGLE_SHEETS_CREDENTIALS='${{ secrets.GOOGLE_SHEETS_CREDENTIALS }}'
 
     - name: Get service URL
       run: |

@@ -75,11 +75,52 @@ EMAIL_USER=your-email@domain.com
 EMAIL_PASS=your-email-password
 EMAIL_FROM=your-email@domain.com
 EMAIL_TO=recipient@domain.com
+
+# Google Sheets Integration
+GOOGLE_SHEETS_ID=your-google-sheets-id
+GOOGLE_SHEETS_CREDENTIALS={"type":"service_account","project_id":"...","private_key_id":"..."}
 ```
 
 ## 📧 Email Configuration
 
 The application uses Nodemailer for email functionality. Configure your SMTP settings in the environment variables above. The contact form sends emails using the configured SMTP server.
+
+## 📊 Google Sheets Integration
+
+The application automatically saves all contact form submissions to a Google Sheets spreadsheet with the following information:
+
+- **Timestamp**: Date and time of submission (France timezone)
+- **Name**: Full name with civility
+- **Email**: Contact email address
+- **Phone**: Phone number (if provided)
+- **Subject**: Generated from user profile selection
+- **Message**: User's message content
+- **IP Address**: Client's IP address
+- **Status**: Automatically set to "New"
+
+### Setting up Google Sheets Integration
+
+1. **Create a Google Cloud Service Account:**
+   ```bash
+   gcloud iam service-accounts create sheets-api \
+     --display-name="Google Sheets API Service Account"
+   ```
+
+2. **Generate and download service account key:**
+   ```bash
+   gcloud iam service-accounts keys create sheets-key.json \
+     --iam-account=sheets-api@YOUR_PROJECT_ID.iam.gserviceaccount.com
+   ```
+
+3. **Share your Google Sheets with the service account:**
+   - Open your Google Sheets document
+   - Click "Share" button
+   - Add the service account email (e.g., `sheets-api@YOUR_PROJECT_ID.iam.gserviceaccount.com`)
+   - Give "Editor" permissions
+
+4. **Configure environment variables:**
+   - `GOOGLE_SHEETS_ID`: Extract from your Google Sheets URL
+   - `GOOGLE_SHEETS_CREDENTIALS`: Content of the service account JSON key file
 
 ## 🚢 Deployment
 
