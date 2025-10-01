@@ -12,7 +12,6 @@ env:
   PROJECT_ID: sextant-prestige-poc
   SERVICE_NAME: acumen-patrimoine
   REGION: europe-west1
-  AR_REPO: europe-west1-docker.pkg.dev/sextant-prestige-poc/gcf-artifacts
 
 jobs:
   # Build and test job
@@ -60,23 +59,23 @@ jobs:
       with:
         project_id: ${{ env.PROJECT_ID }}
 
-    - name: Configure Docker for Artifact Registry
-      run: gcloud auth configure-docker europe-west1-docker.pkg.dev
+    - name: Configure Docker for Container Registry
+      run: gcloud auth configure-docker
 
     - name: Build Docker image
       run: |
-        docker build -t ${{ env.AR_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }} .
-        docker tag ${{ env.AR_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }} ${{ env.AR_REPO }}/${{ env.SERVICE_NAME }}:latest
+        docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} .
+        docker tag gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:latest
 
-    - name: Push Docker image to Artifact Registry
+    - name: Push Docker image to Container Registry
       run: |
-        docker push ${{ env.AR_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
-        docker push ${{ env.AR_REPO }}/${{ env.SERVICE_NAME }}:latest
+        docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+        docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:latest
 
     - name: Deploy to Cloud Run
       run: |
         gcloud run deploy ${{ env.SERVICE_NAME }} \
-          --image ${{ env.AR_REPO }}/${{ env.SERVICE_NAME }}:${{ github.sha }} \
+          --image gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} \
           --region ${{ env.REGION }} \
           --platform managed \
           --allow-unauthenticated \
