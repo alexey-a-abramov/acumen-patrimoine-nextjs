@@ -13,3 +13,6 @@ README.md
 out
 dist
 .vercel
+# Include Yarn files
+!.yarn
+!.yarnrc.yml

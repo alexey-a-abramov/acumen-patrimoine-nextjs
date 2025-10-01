@@ -1,4 +1,4 @@
-import { google } from 'googleapis';
+import { google, sheets_v4 } from 'googleapis';
 
 interface ContactFormData {
   name: string;
@@ -11,8 +11,8 @@ interface ContactFormData {
 }
 
 class GoogleSheetsService {
-  private sheets: any | null;
-  private auth: any | null;
+  private sheets: sheets_v4.Sheets | null = null;
+  private auth: InstanceType<typeof google.auth.GoogleAuth> | null = null;
 
   constructor() {
     this.initializeAuth();
@@ -31,7 +31,7 @@ class GoogleSheetsService {
       let parsedCredentials;
       try {
         parsedCredentials = JSON.parse(credentials);
-      } catch (parseError) {
+      } catch {
         console.warn('Invalid Google Sheets credentials JSON - integration disabled');
         this.sheets = null;
         this.auth = null;
@@ -56,7 +56,7 @@ class GoogleSheetsService {
       this.sheets = google.sheets({ version: 'v4', auth: this.auth });
       console.log('Google Sheets service initialized successfully');
     } catch (error) {
-      console.warn('Failed to initialize Google Sheets - integration disabled:', error.message);
+      console.warn('Failed to initialize Google Sheets - integration disabled:', error instanceof Error ? error.message : String(error));
       this.sheets = null;
       this.auth = null;
     }
@@ -89,16 +89,14 @@ class GoogleSheetsService {
         ]
       ];
 
-      const resource = {
-        values,
-      };
-
       const result = await this.sheets.spreadsheets.values.append({
         spreadsheetId,
         range,
         valueInputOption: 'RAW',
         insertDataOption: 'INSERT_ROWS',
-        resource,
+        requestBody: {
+          values,
+        },
       });
 
       console.log('Successfully added contact form data to Google Sheets:', result.data);
@@ -143,7 +141,7 @@ class GoogleSheetsService {
           spreadsheetId,
           range: 'Sheet1!A1:H1',
           valueInputOption: 'RAW',
-          resource: {
+          requestBody: {
             values: [headers]
           },
         });
@@ -151,7 +149,7 @@ class GoogleSheetsService {
         // Format header row
         await this.sheets.spreadsheets.batchUpdate({
           spreadsheetId,
-          resource: {
+          requestBody: {
             requests: [
               {
                 repeatCell: {

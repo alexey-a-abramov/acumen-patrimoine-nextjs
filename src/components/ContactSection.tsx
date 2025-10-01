@@ -113,7 +113,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contactMessage, setCont
                   name="contactCivility"
                   value={formData.contactCivility}
                   onChange={handleInputChange}
-                  className="w-full p-4 border-2 border-gray-300 rounded-xl text-base transition-all duration-300 focus:outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-900/10"
+                  className="w-full p-4 border-2 border-gray-300 rounded-xl text-base text-gray-900 placeholder-gray-500 transition-all duration-300 focus:outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-900/10"
                 >
                   <option value="">Sélectionnez</option>
                   <option value="M.">Monsieur</option>
@@ -130,7 +130,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contactMessage, setCont
                   value={formData.contactName}
                   onChange={handleInputChange}
                   required
-                  className="w-full p-4 border-2 border-gray-300 rounded-xl text-base transition-all duration-300 focus:outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-900/10"
+                  className="w-full p-4 border-2 border-gray-300 rounded-xl text-base text-gray-900 placeholder-gray-500 transition-all duration-300 focus:outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-900/10"
                 />
               </div>
 
@@ -143,7 +143,7 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contactMessage, setCont
                   value={formData.contactEmail}
                   onChange={handleInputChange}
                   required
-                  className="w-full p-4 border-2 border-gray-300 rounded-xl text-base transition-all duration-300 focus:outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-900/10"
+                  className="w-full p-4 border-2 border-gray-300 rounded-xl text-base text-gray-900 placeholder-gray-500 transition-all duration-300 focus:outline-none focus:border-blue-900 focus:ring-2 focus:ring-blue-900/10"
                 />
               </div>
 
@@ -198,10 +198,10 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contactMessage, setCont
                 {isLoading ? (
                   <span className="flex items-center justify-center gap-2">
                     <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Envoi en cours...
+                    Enregistrement en cours...
                   </span>
                 ) : (
-                  'Envoyer ma demande'
+                  'Soumettre ma demande'
                 )}
               </button>
               

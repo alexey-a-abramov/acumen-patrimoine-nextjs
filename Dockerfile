@@ -12,6 +12,8 @@ RUN corepack enable
 
 # Copy package files
 COPY package.json yarn.lock ./
+COPY .yarnrc.yml ./.yarnrc.yml
+COPY .yarn ./.yarn
 
 # Install dependencies
 RUN yarn install --immutable
