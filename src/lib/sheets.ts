@@ -11,8 +11,8 @@ interface ContactFormData {
 }
 
 class GoogleSheetsService {
-  private sheets;
-  private auth;
+  private sheets: any;
+  private auth: any;
 
   constructor() {
     this.initializeAuth();
