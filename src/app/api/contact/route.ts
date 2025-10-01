@@ -60,9 +60,12 @@ export async function POST(request: Request) {
         console.warn('Continuing without reCAPTCHA verification due to service error');
       }
     } else if (!recaptchaToken && process.env.RECAPTCHA_SECRET_KEY) {
-      console.warn('reCAPTCHA token missing but required');
-      // In production, you might want to return an error here
-      // For now, we'll continue to maintain compatibility
+      if (process.env.NODE_ENV === 'production') {
+        console.warn('reCAPTCHA token missing in production');
+        // In production, you might want to return an error here
+      } else {
+        console.log('reCAPTCHA token missing in development - continuing');
+      }
     }
 
     // Create timestamp in French format

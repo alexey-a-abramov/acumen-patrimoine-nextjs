@@ -11,8 +11,8 @@ interface ContactFormData {
 }
 
 class GoogleSheetsService {
-  private sheets: any;
-  private auth: any;
+  private sheets: any | null;
+  private auth: any | null;
 
   constructor() {
     this.initializeAuth();
@@ -22,10 +22,31 @@ class GoogleSheetsService {
     try {
       const credentials = process.env.GOOGLE_SHEETS_CREDENTIALS;
       if (!credentials) {
-        throw new Error('GOOGLE_SHEETS_CREDENTIALS environment variable is not set');
+        console.warn('GOOGLE_SHEETS_CREDENTIALS not set - Google Sheets integration disabled');
+        this.sheets = null;
+        this.auth = null;
+        return;
       }
 
-      const parsedCredentials = JSON.parse(credentials);
+      let parsedCredentials;
+      try {
+        parsedCredentials = JSON.parse(credentials);
+      } catch (parseError) {
+        console.warn('Invalid Google Sheets credentials JSON - integration disabled');
+        this.sheets = null;
+        this.auth = null;
+        return;
+      }
+
+      // Check if credentials look valid (not dummy)
+      if (!parsedCredentials.private_key || 
+          parsedCredentials.private_key.includes('...') ||
+          parsedCredentials.project_id === 'demo') {
+        console.warn('Dummy Google Sheets credentials detected - integration disabled');
+        this.sheets = null;
+        this.auth = null;
+        return;
+      }
       
       this.auth = new google.auth.GoogleAuth({
         credentials: parsedCredentials,
@@ -33,13 +54,20 @@ class GoogleSheetsService {
       });
 
       this.sheets = google.sheets({ version: 'v4', auth: this.auth });
+      console.log('Google Sheets service initialized successfully');
     } catch (error) {
-      console.error('Failed to initialize Google Sheets auth:', error);
-      throw error;
+      console.warn('Failed to initialize Google Sheets - integration disabled:', error.message);
+      this.sheets = null;
+      this.auth = null;
     }
   }
 
   async appendContactFormData(data: ContactFormData): Promise<void> {
+    if (!this.sheets) {
+      console.log('Google Sheets not initialized - skipping data save');
+      return;
+    }
+
     try {
       const spreadsheetId = process.env.GOOGLE_SHEETS_ID;
       if (!spreadsheetId) {
@@ -81,6 +109,11 @@ class GoogleSheetsService {
   }
 
   async ensureHeaderRow(): Promise<void> {
+    if (!this.sheets) {
+      console.log('Google Sheets not initialized - skipping header row setup');
+      return;
+    }
+
     try {
       const spreadsheetId = process.env.GOOGLE_SHEETS_ID;
       if (!spreadsheetId) {

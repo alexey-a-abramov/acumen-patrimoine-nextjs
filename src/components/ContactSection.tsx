@@ -44,11 +44,15 @@ const ContactSection: React.FC<ContactSectionProps> = ({ contactMessage, setCont
       // Execute reCAPTCHA if available
       if (executeRecaptcha) {
         try {
+          console.log('Executing reCAPTCHA...');
           recaptchaToken = await executeRecaptcha('contact_form');
+          console.log('reCAPTCHA token generated:', recaptchaToken ? 'Success' : 'No token');
         } catch (recaptchaError) {
           console.warn('reCAPTCHA execution failed:', recaptchaError);
           // Continue without reCAPTCHA token - server will handle this gracefully
         }
+      } else {
+        console.log('reCAPTCHA executeRecaptcha not available');
       }
 
       const response = await fetch('/api/contact', {
